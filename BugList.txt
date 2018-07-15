@@ -4,3 +4,97 @@
 	Solve:Replace "$(document).on('ready',function(){})" to "$(window).load(function(){})";
 	References:https://segmentfault.com/a/1190000004976402
 
+
+基本类型 
+引用类型
+
+整理 fileinput 各个属性
+$ele.fileinput('destroy').fileinput({
+	language:'zh',
+	allowedFileExtensions : ['html','py'],
+	allowedPreviewTypes:null,	// Allow every types of file.At least it doesn't occur error.
+	showPreview:true,
+	dropZoneEnabled:false,
+	maxFileCount: 2,
+	hideThumbnailContent:true,
+	showClose:false,			// 去掉关闭按钮
+	showRemove:true,			// 移除
+	removeLabel:'移除',			// 移除按钮显示汉字
+	showCancel:false,
+	// showUpload:false,
+	uploadUrl:'/upload',
+	uploadAsync:false,			// default is true(async异步)
+	layoutTemplates:{
+		actionZoom:'',			// 预览区域的
+		actionDelete:'',		// 预览区域的删除按钮
+		actionUpload:''			// 预览区域的上传按钮
+	},
+	uploadExtraData:function(previewId,index){
+		var chn_id = $('#saveInChnBtn').val();
+		if (MyHelper.isNullString(chn_id)){
+			return {type:1}
+		} else {
+			return {type:2}
+		}
+	},
+	mergeAjaxCallbacks:'before',	// when set to 'before', the ajax callbacks set in ajaxSettings will be merged before the default plugin callback.
+	ajaxSettings:{
+		beforeSend:function(xhr, settings) {
+			if (csrf_token != null) {
+				if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+					xhr.setRequestHeader("X-CSRFToken", csrf_token)
+				}
+			}
+		}
+	}
+}).on('filebatchselected', function(event, files) {	// 选中状态的时候
+	$ele.parent().siblings('a').show();
+}).on('filebatchuploadsuccess',function(event,data){	// uploadAsync为true时触发批量上传 OR 上传成功回调
+	let gotFrames = $ele.fileinput('getFrames');
+	
+	let selected_count = gotFrames.length;
+	if(selected_count !== 2 && type === 0){
+		swal({ title:"上传失败", text:'须同时上传两份文件', type:"error"})
+		return;
+	}
+
+	if(gotFrames[0].title.split('.')[1] === gotFrames[1].title.split('.')[1]){
+		swal({ title:"上传失败", text:'应上传不同文件类型', type:"error"});
+		return;
+	}
+
+	$ele.parent().siblings('a').hide();
+	if (data.response.result){ // success
+		local_name = data.response.data.local_name;
+		script_name = data.response.data.script_name;
+		swal({ title:"上传成功", text:data.response.msg, type:"success"});
+
+		// console.log(JSON.stringify({local_name:local_name,script_name:script_name}))
+		if ($ele.is($('#upload_file_input'))) {
+			local_name = local_name;
+			script_name = script_name;
+		}else if ($ele.is($('#upload_file_check'))) {
+			local_showdata_name = local_name;
+			script_showdata_name = script_name;
+		}
+	}else{
+		swal({ title:"错误", text:data.response.msg, type:"error"});
+	}
+}).on('fileclear',function(ev,id){		//This event is triggered when the file input remove button or preview window close icon is pressed for clearing the file preview.
+	$ele.fileinput('reset');
+	$ele.parent().siblings('a').hide();
+	if ($ele.is($('#upload_file_input'))) {
+		local_name = '';
+		script_name = '';
+	}else if ($ele.is($('#upload_file_check'))) {
+		local_showdata_name = '';
+		script_showdata_name = '';
+	}
+});
+
+https://wenku.baidu.com/view/9db18ac70c22590102029db0.html
+windows.onload 与 $document.ready区别
+
+
+说明如果 带着class = file并且没有js初始化就会按照 class的来，要是没有 调用一次就有了
+
