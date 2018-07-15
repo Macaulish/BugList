@@ -1,0 +1,6 @@
+1,Today I use Bootstrap file-input to build my program.But when I click the 'upload' button it doesn't upload the file to the server.
+	Trace: 
+	Reason:"$(document).on('ready',function(){})"
+	Solve:Replace "$(document).on('ready',function(){})" to "$(window).load(function(){})";
+	References:https://segmentfault.com/a/1190000004976402
+
