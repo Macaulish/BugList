@@ -133,3 +133,28 @@ windows.onload 与 $document.ready区别
 5，引用类型 和 基本类型的比较
 
 
+
+
+
+
+$('#div')[0]  等价于 
+===document.getElementById('div');
+===<div id = 'div'></div>
+
+可以打印出来试试，都是获取了DOM对象
+
+
+$(document.getElementById('div'))
+===$('#div')
+=== w.fn.init [div#div] JQuery对象
+
+
+
+
+
+
+
+
+
+
+
